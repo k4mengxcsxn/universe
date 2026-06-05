@@ -334,16 +334,17 @@ window.addEventListener('resize',()=>{
 
 const clock = new THREE.Clock();
 let frames=0, lastFpsTime=performance.now();
+const fpsEl=document.getElementById('fps');
 
 renderer.setAnimationLoop(()=>{
   const elapsed=clock.getElapsedTime();
-  frames++;
-  const now=performance.now();
-  if(now-lastFpsTime>=1000){
-    fpsEl.textContent=Math.round(frames*1000/(now-lastFpsTime))+' fps';
-    frames=0; lastFpsTime=now;
-  }
-
+ frames++;
+const now=performance.now();
+if(now-lastFpsTime>=1000){
+  fpsEl.textContent=Math.round(frames*1000/(now-lastFpsTime))+' fps';
+  frames=0; lastFpsTime=now;
+}
+  
   controls.update();
   gu.time.value=elapsed*0.5*Math.PI;
   points.rotation.y=elapsed*0.04;
