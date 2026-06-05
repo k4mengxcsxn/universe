@@ -3,6 +3,7 @@ animated universe
 
 Xin chào, tôi là Phạm Ngọc Sơn (có thể gọi là Kame)
 Đây là dự án mà tôi làm có nguồn tham khảo của bạn tôi: @namtarou
+
 Rất cảm ơn mọi người đọc nó, trân trọng!
 
 
