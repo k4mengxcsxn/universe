@@ -1,2 +1,2 @@
-# universe
+# Universe
 animated universe
