@@ -30,6 +30,35 @@
       color:rgba(255,255,255,0.3);font-size:10px;letter-spacing:1px;line-height:1.8;
       text-align:right;pointer-events:none;
     }
+    #brightness-wrap{
+      position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+      display:flex;align-items:center;gap:12px;pointer-events:all;
+      background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);
+      border-radius:30px;padding:8px 20px;backdrop-filter:blur(10px);
+    }
+    #brightness-wrap label{
+      color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:2px;
+      text-transform:uppercase;white-space:nowrap;
+    }
+    #brightness-val{
+      color:rgba(180,100,255,0.9);font-size:10px;letter-spacing:1px;
+      min-width:28px;text-align:right;
+    }
+    #brightness-slider{
+      -webkit-appearance:none;appearance:none;
+      width:130px;height:3px;border-radius:2px;outline:none;cursor:pointer;
+      background:linear-gradient(to right,rgba(180,100,255,0.8) var(--pct,50%),rgba(255,255,255,0.15) var(--pct,50%));
+    }
+    #brightness-slider::-webkit-slider-thumb{
+      -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+      background:rgba(200,140,255,1);box-shadow:0 0 8px rgba(180,100,255,0.8);
+      transition:transform 0.15s;
+    }
+    #brightness-slider::-webkit-slider-thumb:hover{transform:scale(1.3);}
+    #brightness-slider::-moz-range-thumb{
+      width:14px;height:14px;border-radius:50%;border:none;
+      background:rgba(200,140,255,1);box-shadow:0 0 8px rgba(180,100,255,0.8);
+    }
     #overlay{
       position:fixed;top:0;left:0;width:100%;height:100%;
       pointer-events:none;
@@ -43,6 +72,11 @@
   <div id="fps">-- fps</div>
   <div>150k particles</div>
   <div>GLSL shaders</div>
+</div>
+<div id="brightness-wrap">
+  <label>✦ Brightness</label>
+  <input type="range" id="brightness-slider" min="0" max="100" value="50">
+  <span id="brightness-val">50%</span>
 </div>
 <div id="controls">
   <button class="btn active" id="btn-rotate">Auto Rotate</button>
@@ -124,7 +158,6 @@ const pushShift = () => {
   );
 };
 
-// Galaxy sphere core (inner stars)
 const pts = new Array(60000).fill(null).map(()=>{
   sizes.push(Math.random()*2+0.5);
   pushShift();
@@ -283,7 +316,6 @@ const glowMat = new THREE.MeshBasicMaterial({
 const glow = new THREE.Mesh(glowGeo, glowMat);
 scene.add(glow);
 
-// Sprite glow
 const spriteCanvas = document.createElement('canvas');
 spriteCanvas.width=spriteCanvas.height=128;
 const sc=spriteCanvas.getContext('2d');
@@ -325,6 +357,22 @@ document.getElementById('btn-rings').addEventListener('click', e=>{
   e.target.classList.toggle('active',showRings);
 });
 
+const brightnessSlider = document.getElementById('brightness-slider');
+const brightnessVal = document.getElementById('brightness-val');
+let brightnessLevel = 0.5;
+
+const updateBrightness = () => {
+  const v = parseInt(brightnessSlider.value);
+  brightnessLevel = v / 100;
+  brightnessVal.textContent = v + '%';
+  brightnessSlider.style.setProperty('--pct', v + '%');
+
+  renderer.toneMappingExposure = 0.3 + brightnessLevel * 2.1;
+  bloom.strength = 0.4 + brightnessLevel * 2.0;
+};
+brightnessSlider.addEventListener('input', updateBrightness);
+updateBrightness();
+
 window.addEventListener('resize',()=>{
   camera.aspect=innerWidth/innerHeight;
   camera.updateProjectionMatrix();
@@ -355,7 +403,7 @@ if(now-lastFpsTime>=1000){
   glowMat.opacity=0.06+0.04*Math.sin(elapsed*0.8);
   spriteMat.opacity=0.5+0.2*Math.sin(elapsed*0.6);
 
-  bloom.strength=1.3+0.2*Math.sin(elapsed*0.5);
+  bloom.strength=(0.4 + brightnessLevel * 2.0) + 0.15*Math.sin(elapsed*0.5);
 
   composer.render();
 });
